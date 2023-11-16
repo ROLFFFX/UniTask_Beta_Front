@@ -66,7 +66,7 @@ export function SignUp() {
       password: user.password,
       role: [],
     };
-    console.log(modifyUser);
+    // console.log(modifyUser);
     try {
       const response = await axios.post(
         `${ENDPOINT_BASE_URL}api/auth/signup`,
