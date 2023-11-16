@@ -14,7 +14,7 @@ import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
-import { ENDPOINT_BASE_URL } from "../../hooks/useConfig";
+import { ENDPOINT_BASE_URL } from "../../../hooks/useConfig";
 
 function renderWorkspaceRow(props, workspaces, handleClick) {
   //handles the rendering of each workspace
