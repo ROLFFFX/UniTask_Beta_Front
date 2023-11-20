@@ -11,7 +11,7 @@ import useAuth from "../../hooks/useAuth";
 import { Backdrop } from "@mui/material";
 import { CircularProgress } from "@mui/material";
 import { useState } from "react";
-import { ENDPOINT_URL } from "../../hooks/useConfig";
+import { ENDPOINT_BASE_URL } from "../../hooks/useConfig";
 import axios from "axios";
 
 export default function UserProfile() {
@@ -26,11 +26,14 @@ export default function UserProfile() {
     //fetch User Name
     setBackdropOpen(true); //display loading page
     try {
-      const response = await axios.get(`${ENDPOINT_URL}users/getUsername`, {
-        headers: {
-          Authorization: `Bearer ${auth.user.userJWT}`,
-        },
-      });
+      const response = await axios.get(
+        `${ENDPOINT_BASE_URL}users/getUsername`,
+        {
+          headers: {
+            Authorization: `Bearer ${auth.user.userJWT}`,
+          },
+        }
+      );
       setAuth({ ...auth, userName: response.data });
       setUserName(response.data);
     } catch (error) {
