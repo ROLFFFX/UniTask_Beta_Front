@@ -14,7 +14,7 @@ import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
-import { ENDPOINT_BASE_URL } from "../../../hooks/useConfig";
+import { ENDPOINT_URL } from "../../../hooks/useConfig";
 
 function renderWorkspaceRow(props, workspaces, handleClick) {
   //handles the rendering of each workspace
@@ -24,7 +24,15 @@ function renderWorkspaceRow(props, workspaces, handleClick) {
     <ListItem style={style} key={index} component="div" disablePadding>
       <ListItemButton onClick={() => handleClick(index)}>
         <Diversity3Icon sx={{ marginLeft: 10 }} />
-        <ListItemText primary={" " + workspaceTitle} sx={{ marginLeft: 5 }} />
+        <ListItemText
+          primary={" " + workspaceTitle}
+          sx={{
+            "& .MuiListItemText-primary": {
+              fontFamily: "Inter, sans-serif",
+            },
+            marginLeft: 5,
+          }}
+        />
       </ListItemButton>
     </ListItem>
   );
@@ -46,7 +54,7 @@ export default function LoginWithGroup() {
       };
       try {
         const response = await axios.get(
-          `${ENDPOINT_BASE_URL}projects/getUserWorkspaces`,
+          `${ENDPOINT_URL}projects/getUserWorkspaces`,
           config
         );
         if (response.status === 200) {
@@ -95,7 +103,10 @@ export default function LoginWithGroup() {
       >
         <Box style={{ display: "flex", alignItems: "center" }}>
           <LoginIcon style={{ marginRight: 8 }} />
-          <Typography sx={{ color: "#343A40", fontSize: 25 }}>
+          <Typography
+            sx={{ color: "#343A40", fontSize: 25 }}
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
             Login to Your Workspace
           </Typography>
         </Box>
@@ -110,6 +121,7 @@ export default function LoginWithGroup() {
             marginTop: 3,
             marginBottom: 3,
           }}
+          style={{ fontFamily: "Inter, sans-serif" }}
         >
           We detect that you are currently in these workspaces below. Please
           click the one you want to log in with. (*You might scroll this list.)

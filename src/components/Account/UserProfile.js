@@ -11,7 +11,7 @@ import useAuth from "../../hooks/useAuth";
 import { Backdrop } from "@mui/material";
 import { CircularProgress } from "@mui/material";
 import { useState } from "react";
-import { ENDPOINT_BASE_URL } from "../../hooks/useConfig";
+import { ENDPOINT_URL } from "../../hooks/useConfig";
 import axios from "axios";
 
 export default function UserProfile() {
@@ -26,14 +26,11 @@ export default function UserProfile() {
     //fetch User Name
     setBackdropOpen(true); //display loading page
     try {
-      const response = await axios.get(
-        `${ENDPOINT_BASE_URL}users/getUsername`,
-        {
-          headers: {
-            Authorization: `Bearer ${auth.user.userJWT}`,
-          },
-        }
-      );
+      const response = await axios.get(`${ENDPOINT_URL}users/getUsername`, {
+        headers: {
+          Authorization: `Bearer ${auth.user.userJWT}`,
+        },
+      });
       setAuth({ ...auth, userName: response.data });
       setUserName(response.data);
     } catch (error) {
@@ -83,7 +80,13 @@ export default function UserProfile() {
           }}
         >
           <PortraitIcon style={{ marginRight: 8 }} />
-          <Typography sx={{ color: "#343A40", fontSize: 20 }}>
+          <Typography
+            sx={{
+              color: "#343A40",
+              fontSize: 20,
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
             Your Profile
           </Typography>
         </Box>
@@ -100,6 +103,7 @@ export default function UserProfile() {
               paddingLeft: 4,
               paddingRight: 4,
               fontSize: 14,
+              fontFamily: "Inter, sans-serif",
             }}
           >
             <span style={{ fontWeight: "bold" }}>Username:</span>{" "}
@@ -116,6 +120,7 @@ export default function UserProfile() {
               paddingLeft: 4,
               paddingRight: 4,
               fontSize: 14,
+              fontFamily: "Inter, sans-serif",
             }}
           >
             <span style={{ fontWeight: "bold" }}>Email: </span>
@@ -138,6 +143,7 @@ export default function UserProfile() {
               paddingRight: 4,
               fontSize: 14,
               flexGrow: 1,
+              fontFamily: "Inter, sans-serif",
             }}
           >
             <span style={{ fontWeight: "bold" }}>Current Workspace:</span>{" "}

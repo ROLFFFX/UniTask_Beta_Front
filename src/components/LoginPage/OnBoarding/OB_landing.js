@@ -16,7 +16,7 @@ import ChooseRole from "./Steps/ChooseRole";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useAuth from "../../../hooks/useAuth";
-import { ENDPOINT_BASE_URL } from "../../../hooks/useConfig";
+import { ENDPOINT_URL } from "../../../hooks/useConfig";
 
 export function OB_landing() {
   const [activeStep, setActiveStep] = React.useState(0);
@@ -49,7 +49,7 @@ export function OB_landing() {
       // axios.post workspace name
       try {
         const response = await axios.post(
-          `${ENDPOINT_BASE_URL}projects/createNewWorkspace`,
+          `${ENDPOINT_URL}projects/createNewWorkspace`,
           {
             projectTitle: workspaceName,
           },
@@ -61,6 +61,7 @@ export function OB_landing() {
         );
         console.log(response.data);
       } catch (error) {
+        alert("Error: This Workspace Name is Already Taken!");
         console.error("There was an error!", error);
       }
     }
@@ -108,11 +109,22 @@ export function OB_landing() {
               boxShadow: "0 3px 5px rgba(0, 0, 0, 0.3)",
             }}
           >
-            <Typography component="h1" variant="h4" align="center">
+            <Typography
+              component="h1"
+              variant="h4"
+              align="center"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
               Welcome to UniTask
             </Typography>
 
-            <Typography component="h1" variant="subtitle1" align="center">
+            <Typography
+              component="h1"
+              variant="subtitle1"
+              align="center"
+              marginTop={3}
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
               Let's create your first workspace now! Workspace is the shared
               environment of your team where you can edit & view the status of
               the project with your teammates.
@@ -145,10 +157,17 @@ export function OB_landing() {
             <React.Fragment>
               {activeStep === steps.length ? (
                 <React.Fragment>
-                  <Typography variant="h5" gutterBottom>
+                  <Typography
+                    variant="h5"
+                    gutterBottom
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
                     Onboarding Process is complete!
                   </Typography>
-                  <Typography variant="subtitle1">
+                  <Typography
+                    variant="subtitle1"
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
                     Congratulations! You just created your workspace. Let's go
                     to your workspace now!
                   </Typography>

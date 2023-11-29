@@ -18,7 +18,10 @@ import theme from "./LoginStyling/theme";
 import { useState } from "react";
 import { Modal } from "@mui/material";
 import { useCookies } from "react-cookie";
-import { ENDPOINT_BASE_URL } from "../../hooks/useConfig";
+import { ENDPOINT_URL } from "../../hooks/useConfig";
+import Backdrop from "@mui/material/Backdrop";
+
+import CircularProgress from "@mui/material/CircularProgress";
 
 const modalStyle = {
   position: "absolute",
@@ -37,6 +40,8 @@ export function LoginSignup() {
   const { auth, setAuth } = useAuth();
   const [showFailureAlert, setShowFailureAlert] = useState(false);
   const [showBadCredential, setBadCredential] = useState(false);
+  const [backdropOpen, setBackdropOpen] = useState(false); //loading page
+
   const handleClose = () => {
     setShowFailureAlert(false);
   };
@@ -51,17 +56,15 @@ export function LoginSignup() {
     }
   }, [auth, navigate]);
   const handleSubmit = async (e) => {
+    setBackdropOpen(true); //display loading page
     e.preventDefault();
     var data = new FormData(e.currentTarget);
     const userEmail = data.get("email");
     const userPassword = data.get("password");
     data = { email: userEmail, password: userPassword };
-    const url = ENDPOINT_BASE_URL;
-    // console.log(" This is data: ");
-    // console.log(data);
     try {
       const response = await axios.post(
-        `${ENDPOINT_BASE_URL}api/auth/signin`,
+        `${ENDPOINT_URL}api/auth/signin`,
         data,
         {
           headers: { "Content-Type": "application/json" },
@@ -90,14 +93,26 @@ export function LoginSignup() {
         //   navigate("/login/signup");
         // }, 3000);
       }
+    } finally {
+      setBackdropOpen(false);
     }
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <TopSVG></TopSVG>
-      <Container component="main" maxWidth="xs">
+      <TopSVG style={{ position: "absolute", zindex: "-1" }}></TopSVG>
+      <Container
+        component="main"
+        maxWidth="xs"
+        style={{ position: "relative", zIndex: 1 }}
+      >
         <CssBaseline />
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={backdropOpen}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
         <Modal
           open={showFailureAlert}
           onClose={handleClose}
@@ -211,7 +226,7 @@ export function LoginSignup() {
           </Box>
         </Box>
       </Container>
-      <BottomSVG></BottomSVG>
+      <BottomSVG style={{ position: "absolute", zindex: "-1" }}></BottomSVG>
     </ThemeProvider>
   );
 }

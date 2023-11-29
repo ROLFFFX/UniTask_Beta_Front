@@ -10,7 +10,9 @@ import axios from "axios";
 import React from "react";
 import useAuth from "../../hooks/useAuth";
 import theme from "../LoginPage/LoginStyling/theme";
-import { ENDPOINT_BASE_URL } from "../../hooks/useConfig";
+import { ENDPOINT_URL } from "../../hooks/useConfig";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const modalStyle = {
   position: "absolute",
@@ -32,12 +34,15 @@ export default function InviteNewMemberModal({
   const { auth } = useAuth();
   const [email, setEmail] = React.useState("");
   const [errorModalOpen, setErrorModalOpen] = React.useState(false); //handle user invite error
+  const [backdropOpen, setBackdropOpen] = React.useState(false); //loading page
+
   const handleSubmit = async () => {
     //email is already set up in text field
     const projectTitle = auth.selectedWorkspace;
+    setBackdropOpen(true); //display loading page
     try {
       const response = await axios.post(
-        `${ENDPOINT_BASE_URL}projects/addUserToWorkspace/${email}/${projectTitle}`,
+        `${ENDPOINT_URL}projects/addUserToWorkspace/${email}/${projectTitle}`,
         {},
         {
           headers: {
@@ -54,11 +59,19 @@ export default function InviteNewMemberModal({
     } catch (error) {
       console.error("Error adding user to project: ", error);
       setErrorModalOpen(true);
+    } finally {
+      setBackdropOpen(false);
     }
   };
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={backdropOpen}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
         <Modal
           open={open}
           onClose={handleClose}
@@ -71,10 +84,14 @@ export default function InviteNewMemberModal({
               variant="h6"
               component="h2"
               textAlign="center"
+              sx={{ fontFamily: "Inter, sans-serif" }}
             >
               Invite New Team Member
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <Typography
+              id="modal-modal-description"
+              sx={{ mt: 2, fontFamily: "Inter, sans-serif" }}
+            >
               Please enter the email of team member you want to invite in the
               textfield below. Make sure team member already registered using
               this email.
@@ -113,10 +130,14 @@ export default function InviteNewMemberModal({
               variant="h6"
               component="h2"
               textAlign="center"
+              sx={{ fontFamily: "Inter, sans-serif" }}
             >
               Invite User Error
             </Typography>
-            <Typography id="error-modal-description" sx={{ mt: 2 }}>
+            <Typography
+              id="error-modal-description"
+              sx={{ mt: 2, fontFamily: "Inter, sans-serif" }}
+            >
               An error occurred while inviting the user. Please make sure that
               the member you are inviting has registered with this email.
             </Typography>
