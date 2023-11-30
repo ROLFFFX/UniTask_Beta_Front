@@ -67,7 +67,9 @@ export function OB_landing() {
           );
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
         } else {
-          alert("Invalid Input. ");
+          alert(
+            "Invalid Workspace Name. Name should be valid character or numbers and should not end in whitesapce."
+          );
         }
         // console.log(response.data);
       } catch (error) {
