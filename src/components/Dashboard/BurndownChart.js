@@ -100,7 +100,6 @@ export default function BurndownChart({ processedData }) {
 
   return formattedData ? (
     <Box style={{ position: "relative" }}>
-      {console.log(formattedData)}
       <div
         style={{
           position: "absolute",
