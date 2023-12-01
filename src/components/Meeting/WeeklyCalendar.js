@@ -3,21 +3,40 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
-import ListItemButton from "@mui/material/ListItemButton";
 import Popover from "@mui/material/Popover";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {
-  DayPilot,
-  DayPilotCalendar,
-  DayPilotNavigator,
-  DayPilotScheduler,
-} from "@daypilot/daypilot-lite-react";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ImageList from "@mui/material/ImageList";
+import ImageListItem from "@mui/material/ImageListItem";
+import ImageListItemBar from "@mui/material/ImageListItemBar";
+
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import IconButton from "@mui/material/IconButton";
+
+import Logo from "../../images/UNITASK不透明.PNG";
+import createevent1 from "../../images/createevent1.png";
+import createevent2 from "../../images/createevent2.png";
+import createevent3 from "../../images/createevent3.png";
+import reschedule1 from "../../images/reschedule1.png";
+import reschedule2 from "../../images/reschedule2.png";
+import renameordelete from "../../images/renameordelete.png";
+import memberslist from "../../images/memberslist.png";
+import commontimedisplayed from "../../images/commontimedisplayed.png";
+import createfromthere from "../../images/createfromthere.png";
+
+import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 import "./WeeklyCalendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-//import { zonedTimeToUtc, utcToZonedTime, format } from 'date-fns-tz';
 import useAuth from "../../hooks/useAuth";
 import { ENDPOINT_URL } from "../../hooks/useConfig";
 
@@ -44,6 +63,81 @@ const styles = {
 const WeeklyCalendar = () => {
   const { auth } = useAuth();
 
+  const [guide, setGuide] = React.useState(false);
+  const [userName, setUserName] = React.useState("");
+
+  const createEventImages = [
+    {
+      img: createevent1,
+      title: "1. Select a Time Range",
+    },
+    {
+      img: createevent2,
+      title: "2. Name the Event",
+    },
+    {
+      img: createevent3,
+      title: "3. Event Successfully created",
+    },
+  ];
+
+  const rescheduleEventImages = [
+    {
+      img: reschedule1,
+      title: "Drag to another time",
+    },
+    {
+      img: reschedule2,
+      title: "Extend or shorten duration",
+    },
+  ];
+
+  const renameOrDeleteImages = [
+    {
+      img: renameordelete,
+      title: "Rename Or Delete",
+    },
+  ];
+
+  const availabilityPollImages = [
+    {
+      img: memberslist,
+      title: "Memebers who has submitted their availability",
+    },
+    {
+      img: commontimedisplayed,
+      title: "Your common availability displayed on this page",
+    },
+    {
+      img: createfromthere,
+      title: "Create an event from there!",
+    },
+  ];
+
+  const handleGuideOpen = () => {
+    setGuide(true);
+  };
+
+  //associated with the expand and collapse tutorial items
+  const [expanded, setExpanded] = React.useState(false);
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  const handleGuideClose = () => {
+    setGuide(false);
+    //set of users that has opened this page on this browser
+    let thisBrUserSet = new Set(
+      JSON.parse(localStorage.getItem("notFirstTime")) || []
+    ); // Fallback to empty array if null
+    thisBrUserSet = new Set([...thisBrUserSet, userName]);
+    // console.log("appended notFirstTime user set", thisBrUserSet);
+    localStorage.setItem(
+      "notFirstTime",
+      JSON.stringify(Array.from(thisBrUserSet))
+    );
+  };
+
   const projectTitle = auth.selectedWorkspace;
 
   const [handleRefresh, setHandleRefresh] = useState([]);
@@ -69,9 +163,27 @@ const WeeklyCalendar = () => {
         }
       );
       setInSession(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (e) {
       console.error("Error Confirming Existing Project Timeslots:", e);
+    }
+  };
+
+  const fetchUserName = async () => {
+    try {
+      const response = await axios.get(`${ENDPOINT_URL}users/getUsername`, {
+        headers: {
+          Authorization: `Bearer ${auth.user.userJWT}`,
+        },
+      });
+      setUserName(response.data);
+      const userSet = new Set(
+        JSON.parse(localStorage.getItem("notFirstTime") || "[]")
+      );
+      // console.log("notFirstTime user set", userSet);
+      setGuide(!userSet.has(response.data));
+    } catch (error) {
+      console.error("Error fetching username:", error);
     }
   };
 
@@ -91,7 +203,7 @@ const WeeklyCalendar = () => {
       if (response.data.length > 0) {
         setMembersList(response.data);
       }
-      console.log(response.data);
+      // console.log("members who has submitted availability", response.data);
     } catch (e) {
       console.error("Error Fetching Members Who Has Submitted Timeslots:", e);
     }
@@ -118,7 +230,7 @@ const WeeklyCalendar = () => {
           endTime: avaliable.endTime,
         });
       }
-      console.log("fetched availableTS", avaliableTimeSlots);
+      // console.log("fetched availableTS", avaliableTimeSlots);
       return avaliableTimeSlots;
     } catch (error) {
       console.error("Error fetching avaliableTimeSlots:", error);
@@ -128,7 +240,6 @@ const WeeklyCalendar = () => {
 
   //(MEETING) Get current meetings
   const fetchMeetings = async () => {
-    console.log("fetchMeetings");
     try {
       const response = await axios.get(
         `${ENDPOINT_URL}api/test/meeting/${projectTitle}`,
@@ -232,10 +343,7 @@ const WeeklyCalendar = () => {
     endTime = endTime.toISOString();
 
     // Open a modal to get meeting details
-    const titleResponse = await DayPilot.Modal.prompt(
-      "Title for the meeting:",
-      ""
-    );
+    const titleResponse = await DayPilot.Modal.prompt("Name the Event:", "");
     if (!titleResponse || titleResponse.canceled) {
       clearSelection();
       return;
@@ -270,8 +378,8 @@ const WeeklyCalendar = () => {
         }
       );
 
-      console.log("Meeting created:", response.data);
-      console.log("response", response.status);
+      // console.log("Meeting created:", response.data);
+      // console.log("response", response.status);
     } catch (error) {
       console.error(
         "Error creating meeting:",
@@ -405,7 +513,7 @@ const WeeklyCalendar = () => {
       };
 
       // Log the meeting info to be deleted
-      console.log("Meeting to delete:", meetingToDelete);
+      // console.log("Meeting to delete:", meetingToDelete);
 
       // Send the meeting data to your backend
       const response = await axios.delete(
@@ -417,7 +525,7 @@ const WeeklyCalendar = () => {
         }
       );
 
-      console.log("Meeting deleted:", meetingToDelete);
+      // console.log("Meeting deleted:", meetingToDelete);
 
       const dp = calendarRef.current.control;
       dp.events.remove(e);
@@ -428,36 +536,9 @@ const WeeklyCalendar = () => {
     }
   };
 
-  //TODO: convert time slots to 30 mins duration
-  const convertTo30MinSlots = (meetings) => {
-    const slots = [];
-
-    meetings.forEach((meeting) => {
-      let currentStart = new Date(meeting.startTime);
-      let end = new Date(meeting.endTime);
-
-      while (currentStart < end) {
-        let currentEnd = new Date(currentStart.getTime() + 30 * 60000); // 30 minutes later
-
-        if (currentEnd > end) {
-          currentEnd = new Date(end); // Adjust if the last slot exceeds the original end time
-        }
-
-        slots.push({
-          start: currentStart.toISOString(),
-          end: currentEnd.toISOString(),
-        });
-
-        currentStart = new Date(currentEnd); // Move to the next slot
-      }
-    });
-
-    return slots;
-  };
-
   //get time difference between the ISO string and the local time
   const getTimeZoneOffsetInHours = () => {
-    console.log("get time difference");
+    // console.log("get time difference");
     const currentDateTime = new Date();
     const offsetInMinutes = currentDateTime.getTimezoneOffset();
     const offsetInHours = offsetInMinutes / 60;
@@ -490,7 +571,7 @@ const WeeklyCalendar = () => {
         contextMenuDisabled: true,
       });
     });
-    console.log("processedTS", processedTS);
+    // console.log("processedTS", processedTS);
     return processedTS;
   };
 
@@ -513,61 +594,6 @@ const WeeklyCalendar = () => {
         cssClass: "calendar_black_event_inner",
         //disallow dragging the events
       };
-    });
-  };
-
-  //TODO: (COMBINE) Function to check if two time periods overlap
-  const doTimesOverlap = (start1, end1, start2, end2) => {
-    return start1 < end2 && start2 < end1;
-  };
-
-  //TODO: (COMBINE) Function to filter out available slots that conflict with meetings
-  const filterConflictingSlots = (availableSlots, meetings) => {
-    return availableSlots.filter((availableSlot) => {
-      const availableStart = new Date(availableSlot.start);
-      const availableEnd = new Date(availableSlot.end);
-
-      // Check if this slot overlaps with any meeting
-      return !meetings.some((meeting) => {
-        const meetingStart = new Date(meeting.start);
-        const meetingEnd = new Date(meeting.end);
-        return doTimesOverlap(
-          availableStart,
-          availableEnd,
-          meetingStart,
-          meetingEnd
-        );
-      });
-    });
-  };
-
-  //TODO: Buttons for clear all avaliable time slots prompt
-  const customConfirm = (message) => {
-    return new Promise((resolve) => {
-      DayPilot.Modal.showHtml(
-        `
-                <div>
-                    <p>${message}</p>
-                    <button id="yes">Yes</button>
-                    <button id="no">No, Maybe Later</button>
-                </div>
-            `
-      ).then((modal) => {
-        if (modal.canceled) {
-          resolve(false);
-          return;
-        }
-
-        document.getElementById("yes").onclick = () => {
-          modal.close();
-          resolve(true);
-        };
-
-        document.getElementById("no").onclick = () => {
-          modal.close();
-          resolve(false);
-        };
-      });
     });
   };
 
@@ -596,7 +622,7 @@ const WeeklyCalendar = () => {
 
         if (response.status === 201) {
           //not sure 200 or 201
-          console.log("All available time slots cleared");
+          // console.log("All available time slots cleared");
           // You may want to update your UI or state here as needed
         }
       } catch (error) {
@@ -654,29 +680,26 @@ const WeeklyCalendar = () => {
   };
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  // const handleShiftPage = (event) => {
-  //     if(open){navigate("/meeting/selectmeeting");
-  //     }else{setAnchorEl(event.currentTarget);}
-  // };
+  const openn = Boolean(anchorEl);
 
   // UseEffect for setting up calendar events
   useEffect(() => {
     const initializeCalendar = async () => {
       fetchInSession();
       fetchSubmittedMembers();
+      fetchUserName();
       const [available, meetings] = await Promise.all([
         fetchAvaliable(),
         fetchMeetings(),
       ]);
 
+      //localStorage.clear();
+
+      //reflects whether it's the first time the user visits the page
+      // console.log("guide open", guide);
       //console.log("available",available);
       const processedAvailable = adjustTimeZoneAvaliable(available);
       const adjustedMeetings = adjustTimeZoneMeet(meetings);
-
-      // Filter out conflicting slots
-      //const nonConflictingAvailable = filterConflictingSlots(processedAvailable, adjustedMeetings);
 
       // Combine non-conflicting available slots and meetings
       const combinedEvents = [...processedAvailable, ...adjustedMeetings];
@@ -717,11 +740,7 @@ const WeeklyCalendar = () => {
       ) : null}
       <div className="week-navigation" style={styles.wrap}>
         <div className="button-row" style={styles.header}>
-          {inSession ? (
-            <h1>Common Availability Overview</h1>
-          ) : (
-            <h1>Group Events</h1>
-          )}
+          <h1>Group Events Schedule</h1>
           <button className="button-prev" onClick={goToPreviousWeek}>
             &lt; Previous Week
           </button>
@@ -731,7 +750,7 @@ const WeeklyCalendar = () => {
           {inSession ? (
             <div>
               <button onClick={() => navigate("/meeting/selectmeeting")}>
-                Edit Your Available Time
+                Submit Your Available Time
               </button>
               <button
                 className="button-clear-slots"
@@ -744,16 +763,14 @@ const WeeklyCalendar = () => {
             <div>
               <button
                 onClick={(e) => setAnchorEl(e.currentTarget)}
-                aria-owns={open ? "mouse-over-popover" : undefined}
+                aria-owns={openn ? "mouse-over-popover" : undefined}
                 aria-haspopup="true"
-                //onMouseOver={(e) => setAnchorEl(e.currentTarget)}
-                //onMouseLeave={() => setAnchorEl(null)}
               >
                 Start A Group Availability Poll
               </button>
               <Popover
                 id={"reminder-popper"}
-                open={open}
+                open={openn}
                 anchorEl={anchorEl}
                 anchorOrigin={{
                   vertical: "bottom",
@@ -793,15 +810,161 @@ const WeeklyCalendar = () => {
               </Popover>
             </div>
           )}
+          <Button aria-label="help" onClick={handleGuideOpen}>
+            <HelpOutlineIcon />
+          </Button>
         </div>
         {selectedRange ? (
-          <div>
-            <button onClick={createMeeting}>Create Meeting</button>
-            <button onClick={clearSelection}>Cancel</button>
+          <div className="below-header">
+            <Button onClick={createMeeting}>Create Event</Button>
+            <Button onClick={clearSelection}>Cancel</Button>
           </div>
         ) : (
-          <div className="button-placeholder"></div>
+          <div>
+            <div className={"button-placeholder"} />
+          </div>
         )}
+        <Dialog
+          open={guide}
+          onClose={handleGuideClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"How to Manage My Group Schedule"}
+          </DialogTitle>
+          <DialogContent>
+            <Accordion
+              expanded={expanded === "panel1"}
+              onChange={handleChange("panel1")}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1bh-content"
+                id="panel1bh-header"
+              >
+                <Typography sx={{ width: "50%", flexShrink: 0 }}>
+                  Create A Group Event
+                </Typography>
+                <Typography sx={{ color: "text.secondary" }}>
+                  Click or drag on the calendar to select a time range
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ImageList
+                  sx={{ width: 500, height: "100%" }}
+                  cols={1}
+                  rowHeight={500}
+                >
+                  {createEventImages.map((item) => (
+                    <ImageListItem key={item.img}>
+                      <img src={item.img} alt={item.title} loading="lazy" />
+                      <ImageListItemBar title={item.title} />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === "panel2"}
+              onChange={handleChange("panel2")}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel2bh-content"
+                id="panel2bh-header"
+              >
+                <Typography sx={{ width: "50%", flexShrink: 0 }}>
+                  Reschedule An Event
+                </Typography>
+                <Typography sx={{ color: "text.secondary" }}>
+                  Drag, extend, or shorten the event blocks to reschedule
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ImageList
+                  sx={{ width: 500, height: "100%" }}
+                  cols={2}
+                  rowHeight={200}
+                >
+                  {rescheduleEventImages.map((item) => (
+                    <ImageListItem key={item.img}>
+                      <img src={item.img} alt={item.title} loading="lazy" />
+                      <ImageListItemBar title={item.title} />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === "panel3"}
+              onChange={handleChange("panel3")}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel3bh-content"
+                id="panel3bh-header"
+              >
+                <Typography sx={{ width: "50%", flexShrink: 0 }}>
+                  Rename or Delete An Event
+                </Typography>
+                <Typography sx={{ color: "text.secondary" }}>
+                  Right click on the event blocks to see these options
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ImageList
+                  sx={{ width: 500, height: "100%" }}
+                  cols={1}
+                  rowHeight={500}
+                >
+                  {renameOrDeleteImages.map((item) => (
+                    <ImageListItem key={item.img}>
+                      <img src={item.img} alt={item.title} loading="lazy" />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === "panel4"}
+              onChange={handleChange("panel4")}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel4bh-content"
+                id="panel4bh-header"
+              >
+                <Typography sx={{ width: "50%", flexShrink: 0 }}>
+                  Group Availability Poll
+                </Typography>
+                <Typography sx={{ color: "text.secondary" }}>
+                  Submit your availabilities, see who has submitted and their
+                  common available time
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ImageList
+                  sx={{ width: 500, height: "100%" }}
+                  cols={1}
+                  rowHeight={500}
+                >
+                  {availabilityPollImages.map((item) => (
+                    <ImageListItem key={item.img}>
+                      <img src={item.img} alt={item.title} loading="lazy" />
+                      <ImageListItemBar title={item.title} />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              </AccordionDetails>
+            </Accordion>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleGuideClose} color="secondary">
+              Got it! Don't Show This Again
+            </Button>
+          </DialogActions>
+        </Dialog>
         <DayPilotCalendar
           key={calendarConfig.cellDuration}
           style={styles.calendar}
