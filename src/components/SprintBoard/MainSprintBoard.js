@@ -114,7 +114,9 @@ export function MainSprintBoard() {
     setBackdropOpen(true); //display loading page
     // Step 1: Format the request body to be sent
     let dateObject = new Date(taskData.expectedCompleteTime);
-    let isoDateString = dateObject ? dateObject.toISOString() : null;
+    let isoDateString = dateObject
+      ? randomizeDateObject(dateObject).toISOString()
+      : null;
     const requestBody = {
       title: taskData.title,
       status: taskData.status,
@@ -152,7 +154,7 @@ export function MainSprintBoard() {
       title: task.title,
       status: newStatus,
       taskPoints: task.taskPoints,
-      expectedCompleteTime: formattedDate, // Make sure this is in the correct format
+      expectedCompleteTime: formattedDate,
     };
 
     try {
@@ -169,6 +171,28 @@ export function MainSprintBoard() {
   /* End of request declarations-------------------------------------------------------------------------------------------------------------------- */
 
   /* Other Helper Functions-------------------------------------------------------------------------------------------------------------------- */
+  // randomize the hour / minutes / seconds of dateObject to avoid collision
+  function randomizeDateObject(dateObject) {
+    if (!dateObject) return null;
+
+    const now = new Date();
+    dateObject.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+    return dateObject;
+  }
+
+  // randomize the hour / minutes / seconds of ISOString Object to avoid collision
+  function randomizeISOString(dateString) {
+    if (!dateString) return null;
+
+    const dateObject = new Date(dateString);
+    const now = new Date();
+
+    dateObject.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+    return dateObject;
+  }
+
   // Controller: open adding new task popper
   const openTaskPopup = (event) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
