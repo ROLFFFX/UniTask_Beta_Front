@@ -1,3 +1,10 @@
+/**
+ * @fileoverview This file includes the LoginSignup component, which is used for the Login
+ * authentication.
+ */
+
+import { Modal } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -9,17 +16,14 @@ import Typography from "@mui/material/Typography";
 import { ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import { ENDPOINT_URL } from "../../hooks/useConfig";
 import { BottomSVG } from "./LoginStyling/BottomSVG";
 import { TopSVG } from "./LoginStyling/TopSVG";
 import theme from "./LoginStyling/theme";
-import { useState } from "react";
-import { Modal } from "@mui/material";
-import { useCookies } from "react-cookie";
-import { ENDPOINT_URL } from "../../hooks/useConfig";
-import Backdrop from "@mui/material/Backdrop";
 
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -35,6 +39,21 @@ const modalStyle = {
   p: 4,
 };
 
+/**
+ * LoginSignup - A functional component for user login and auth.
+ *
+ * This component presents an interface for users to log in to the project. It includes input fields for email
+ * and password, and a submit button to initiate the login process. It also interacts with the server through
+ * API call to validate user credentials. On success, it navigates the user to root of protected routes; on failure,
+ * it display custom messages.
+ *
+ * State:
+ * @state @type {boolean} showFailureAlert - Controls the visibility of the modal displaying a failure alert.
+ * @state @type {boolean} showBadCredential - Controls the visibility of the modal for bad credential errors.
+ * @state @type {boolean} backdropOpen - Boolean to control the display of the loading backdrop.
+ *
+ * @returns {React.ReactElement} A React element representing the user login interface.
+ */
 export function LoginSignup() {
   const [cookies, setCookie, removeCookie] = useCookies(["auth"]);
   const { auth, setAuth } = useAuth();

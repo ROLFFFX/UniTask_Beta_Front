@@ -1,62 +1,57 @@
-import React, { useState, useRef, useEffect } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import ImageList from "@mui/material/ImageList";
+import ImageListItem from "@mui/material/ImageListItem";
+import ImageListItemBar from "@mui/material/ImageListItemBar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ImageList from "@mui/material/ImageList";
-import ImageListItem from "@mui/material/ImageListItem";
-import ImageListItemBar from "@mui/material/ImageListItemBar";
+import React, { useEffect, useRef, useState } from "react";
 
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import IconButton from "@mui/material/IconButton";
 
-import Logo from "../../images/UNITASK不透明.PNG";
+import commontimedisplayed from "../../images/commontimedisplayed.png";
 import createevent1 from "../../images/createevent1.png";
 import createevent2 from "../../images/createevent2.png";
 import createevent3 from "../../images/createevent3.png";
+import createfromthere from "../../images/createfromthere.png";
+import memberslist from "../../images/memberslist.png";
+import renameordelete from "../../images/renameordelete.png";
 import reschedule1 from "../../images/reschedule1.png";
 import reschedule2 from "../../images/reschedule2.png";
-import renameordelete from "../../images/renameordelete.png";
-import memberslist from "../../images/memberslist.png";
-import commontimedisplayed from "../../images/commontimedisplayed.png";
-import createfromthere from "../../images/createfromthere.png";
 
 import { DayPilot, DayPilotCalendar } from "@daypilot/daypilot-lite-react";
-import "./WeeklyCalendar.css";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { ENDPOINT_URL } from "../../hooks/useConfig";
+import "./WeeklyCalendar.css";
 
 const styles = {
   wrap: {
     justifyContent: "center",
     alignItems: "center",
-    //height: "100vh",
+    width: "90%",
     padding: "0 50px",
   },
   calendar: {
     width: "100%",
-    maxWidth: "800px",
   },
   header: {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    maxWidth: "800px",
-    marginTop: "10px",
+    marginTop: "20px",
   },
 };
 
@@ -628,6 +623,7 @@ const WeeklyCalendar = () => {
       } catch (error) {
         console.error("Error clearing available time slots:", error);
       }
+      clearSelection();
     });
   };
 
@@ -673,14 +669,16 @@ const WeeklyCalendar = () => {
 
   const goToPreviousWeek = () => {
     setStartDate(startDate.addDays(-7));
+    clearSelection();
   };
 
   const goToNextWeek = () => {
     setStartDate(startDate.addDays(7));
+    clearSelection();
   };
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openn = Boolean(anchorEl);
+  const [tipsOpen, setTipsOpen] = useState(null);
+  const openn = Boolean(tipsOpen);
 
   // UseEffect for setting up calendar events
   useEffect(() => {
@@ -720,17 +718,18 @@ const WeeklyCalendar = () => {
         <List
           className={"membersListWrap"}
           disablePadding
-          subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-              There's a Group Availability Poll in Progress... Members Who Have
-              Submitted Their Available Time:
-            </ListSubheader>
-          }
         >
+          <ListItem>
+            <ListItemText primary={
+              <Typography color="secondary">
+                There's a Group Availability Poll in Progress... Members Who Have Submitted Their Available Time:
+              </Typography>
+            }/>
+          </ListItem>
           <ListItem>
             <List className={"membersList"}>
               {membersList.map((name, index) => (
-                <ListItem key={index}>
+                <ListItem key={index} className={"membersList-item"}>
                   <ListItemText primary={name} />
                 </ListItem>
               ))}
@@ -741,89 +740,69 @@ const WeeklyCalendar = () => {
       <div className="week-navigation" style={styles.wrap}>
         <div className="button-row" style={styles.header}>
           <h1>Group Events Schedule</h1>
-          <button className="button-prev" onClick={goToPreviousWeek}>
-            &lt; Previous Week
-          </button>
-          <button className="button-next" onClick={goToNextWeek}>
-            Next Week &gt;
-          </button>
-          {inSession ? (
-            <div>
-              <button onClick={() => navigate("/meeting/selectmeeting")}>
-                Submit Your Available Time
-              </button>
-              <button
-                className="button-clear-slots"
-                onClick={clearAvailableSlots}
-              >
-                End Poll
-              </button>
-            </div>
-          ) : (
-            <div>
-              <button
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-                aria-owns={openn ? "mouse-over-popover" : undefined}
-                aria-haspopup="true"
-              >
-                Start A Group Availability Poll
-              </button>
-              <Popover
-                id={"reminder-popper"}
-                open={openn}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                onClose={() => setAnchorEl(null)}
-              >
-                <List>
-                  <ListItem>
-                    <ListItemText primary="Tip:" />
-                    <Button
-                      id={"proceed-to-poll"}
-                      onClick={() => navigate("/meeting/selectmeeting")}
-                      color="secondary"
-                      variant="contained"
-                    >
-                      Got it! Proceed to Poll
-                    </Button>
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Please *remind your team* ⏰ 👥 to submit their available time," />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="and don't forget to *confirm your selection* ✅ before leaving the page!" />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Once done, common available times will be displayed on this page," />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="so that you can come back and schedule your group events accordingly." />
-                  </ListItem>
-                </List>
-              </Popover>
-            </div>
-          )}
-          <Button aria-label="help" onClick={handleGuideOpen}>
-            <HelpOutlineIcon />
-          </Button>
+          <div className={"header-right"}>
+            {inSession ? (
+              <div>
+                <button onClick={() => navigate("/meeting/selectmeeting")}>
+                  Submit Your Available Time
+                </button>
+                <button
+                  className="button-clear-slots"
+                  onClick={clearAvailableSlots}
+                >
+                  End Poll
+                </button>
+              </div>
+            ) : (
+              <div>
+                <button
+                  onClick={(e) => setTipsOpen(e.currentTarget)}
+                  aria-owns={openn ? "mouse-over-popover" : undefined}
+                  aria-haspopup="true"
+                >
+                  Start A Group Availability Poll
+                </button>
+                <Dialog
+                  id={"reminder-dialog"}
+                  open={openn}
+                  onClose={() => setTipsOpen(null)}
+                >
+                  <List>
+                    <ListItem>
+                      <ListItemText primary="Tips" />
+                      <Button
+                        id={"proceed-to-poll"}
+                        onClick={() => navigate("/meeting/selectmeeting")}
+                        color="secondary"
+                        variant="contained"
+                      >
+                        Got it! Proceed to Poll
+                      </Button>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Please *remind your team* ⏰ 👥 to submit their available time," />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="and don't forget to *confirm your selection* ✅ before leaving the page!" />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Common available time will be displayed on this group event calendar," />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="as well as members who has submitted to the availability poll," />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="so that you can come back and schedule your group events accordingly." />
+                    </ListItem>
+                  </List>
+                </Dialog>
+              </div>
+            )}
+            <Button aria-label="help" onClick={handleGuideOpen}>
+              <HelpOutlineIcon />
+            </Button>
+          </div>
         </div>
-        {selectedRange ? (
-          <div className="below-header">
-            <Button onClick={createMeeting}>Create Event</Button>
-            <Button onClick={clearSelection}>Cancel</Button>
-          </div>
-        ) : (
-          <div>
-            <div className={"button-placeholder"} />
-          </div>
-        )}
         <Dialog
           open={guide}
           onClose={handleGuideClose}
@@ -960,20 +939,50 @@ const WeeklyCalendar = () => {
             </Accordion>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleGuideClose} color="secondary">
+            <Button onClick={handleGuideClose} color="secondary" variant="contained">
               Got it! Don't Show This Again
             </Button>
           </DialogActions>
         </Dialog>
-        <DayPilotCalendar
-          key={calendarConfig.cellDuration}
-          style={styles.calendar}
-          {...calendarConfig}
-          ref={calendarRef}
-          onTimeRangeSelected={onTimeRangeSelected}
-          onEventResized={editEventTime}
-          onEventMoved={editEventTime}
-        />
+        {selectedRange ? (
+          <div className="below-header">
+            <Button className={"button-create"}
+                    onClick={createMeeting}
+                    color="secondary"
+                    variant="contained">
+              Create Event
+            </Button>
+            <Button className={"button-cancel"}
+                    onClick={clearSelection}
+                    color="secondary"
+                    variant="contained">
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <div className={"button-placeholder"} />
+          </div>
+        )}
+        <div className="prev-next">
+          <button className="button-prev" onClick={goToPreviousWeek}>
+              &lt; Previous Week
+          </button>
+          <button className="button-next" onClick={goToNextWeek}>
+              Next Week &gt;
+          </button>
+        </div>
+        <div className="calendar-wrapper">
+          <DayPilotCalendar
+            key={calendarConfig.cellDuration}
+            style={styles.calendar}
+            {...calendarConfig}
+            ref={calendarRef}
+            onTimeRangeSelected={onTimeRangeSelected}
+            onEventResized={editEventTime}
+            onEventMoved={editEventTime}
+          />
+        </div>
       </div>
     </div>
   );

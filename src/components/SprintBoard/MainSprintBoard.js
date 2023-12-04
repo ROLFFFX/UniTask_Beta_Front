@@ -1,3 +1,11 @@
+/**
+ * @fileoverview This file includes the MainSprintBoard component, which is a key part
+ * of this project. It handles the display and management of tasks, including creating,
+ * viewing, updating, and deleting tasks. The component uses MUI for styling, axios for
+ * API requests, and React hooks fro state management. Each Task is defined in ./Task.js
+ *
+ */
+
 import { Box, Button, Typography, Grid, Tooltip } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -11,6 +19,30 @@ import add_button_favicon from "../../images/add_button_favicon.png";
 import "./MainSprintBoard.css";
 import Task from "./Task";
 
+/**
+ * MainSprintBoard - A functional component for managing and visualizing tasks in a sprint.
+ *
+ * This component is responsible for displaying tasks categorized by their status (Not Started, To Do, Doing, Done)
+ * in a Kanban-style board. It allows users to create new tasks, update task status through drag-and-drop, and
+ * view task details. The component fetches task and team member data from an API and updates the UI accordingly.
+ * Each column should be populated by Task Objects, which is defined in Task.js
+ *
+ * State:
+ * @state @type {boolean} backdropOpen - Controls the visibility of the loading backdrop.
+ * @state @type {Array} users - Stores team member information.
+ * @state @type {string} projectTitle - Stores the title of the current project.
+ * @state @type {Object} anchorEl - Controls the popper for adding a new task.
+ * @state @type {string} teamName - Stores the name of the current team.
+ * @state @type {Array} unformattedTasks - Stores raw task data from the API.
+ * @state @type {Array} tasks - Stores formatted tasks for display.
+ * @state @type {string} taskNameInput - Stores the input value for the task name.
+ * @state @type {string} assigneeInput - Stores the input value for the task assignee.
+ * @state @type {string} expectedCompleteTimeInput - Stores the input value for the expected completion time of a task.
+ * @state @type {number} taskPointsInput - Stores the input value for the task points.
+ * @state @type {boolean} openSpotlight - Controls the visibility of the spotlight tooltip for adding a new task.
+ *
+ * @returns {React.ReactElement} A React element representing the main Taskboard of this project management system.
+ */
 export function MainSprintBoard() {
   /* useState Declarations-------------------------------------------------------------------------------------------------------------------- */
   const { auth } = useAuth(); // auth state to retrieve project title, currently signed in user email and user name
@@ -113,7 +145,9 @@ export function MainSprintBoard() {
   const createTask = (taskData) => {
     setBackdropOpen(true); //display loading page
     // Step 1: Format the request body to be sent
+    // Modify the date here for task creation
     let dateObject = new Date(taskData.expectedCompleteTime);
+    dateObject = addOneDay(dateObject); // add one day to avoid timezone conflict
     let isoDateString = dateObject
       ? randomizeDateObject(dateObject).toISOString()
       : null;
@@ -234,8 +268,15 @@ export function MainSprintBoard() {
     if (day.length < 2) day = "0" + day;
 
     // Append a default time if your backend requires LocalDateTime
-    return [year, month, day].join("-") + "T00:00:00"; // Adjust time as needed
+    return [year, month, day].join("-") + "T12:00:00"; // Adjust time as needed
   };
+
+  // custom helper function to add one day, avoids timezone problem during task creation phase
+  function addOneDay(date) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + 1);
+    return result;
+  }
 
   // Drag & Drop functionality
   const onDragOver = (e) => {

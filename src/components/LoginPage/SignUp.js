@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file includes the SignUp component, which is used for
+ * registering new users.
+ */
+
 import { Modal } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
@@ -30,11 +35,31 @@ const modalStyle = {
   border: "2px solid #000",
   boxShadow: 24,
   p: 4,
-  display: "flex", // Add this line
-  flexDirection: "column", // Add this line
+  display: "flex",
+  flexDirection: "column",
   alignItems: "center",
 };
 
+/**
+ * SignUp - A functional component for registering new users.
+ *
+ * This component presents an interface for users to sign up their own account. It includes input fields for first name,
+ * last name, email, custom password field, and a submit button to initiate the registration process. The password input is
+ * customized and can be found in ./PasswordInput.js. It also interacts with server through API calls to register and uses
+ * custom modal to display success or error messages. Since we handle user authorization through a GET Request with JWT, it
+ * display a modal to prompt the user to click the link in email.
+ *
+ * State:
+ * @state @type {boolean} showSuccessAlert - Controls the visibility of the modal displaying a success alert after registration.
+ * @state @type {boolean} showFailureAlert - Controls the visibility of the modal for registration failure.
+ * @state @type {boolean} backdropOpen - Boolean to control the display of the loading backdrop.
+ * @state @type {Object} user - Stores the user information entered in the form.
+ * @state @type {boolean} isPasswordValid - Indicates if the password entered meets the specified criteria.
+ * @state @type {boolean} isSignUpEnabled - Determines if the sign-up button should be enabled based on form validity.
+ *
+ *
+ * @returns {React.ReactElement} A React element representing the user registration interface.
+ */
 export function SignUp() {
   const navigate = useNavigate();
   const [showSuccessAlert, setShowSuccessAlert] = useState(false); //default is true for testing purpose
@@ -155,7 +180,10 @@ export function SignUp() {
                   to your provided address. Please check your email and click on
                   the verification link within{" "}
                   <span style={{ fontWeight: "bold" }}>15 minutes</span> to
-                  complete your registration.
+                  complete your registration. <br />
+                  <span style={{ fontWeight: "bold" }}>
+                    * Remember to check the spam folder!
+                  </span>
                 </Typography>
                 <Button
                   onClick={() => {

@@ -1,9 +1,26 @@
+/**
+ * @fileoverview This file includes the VisualCharts component, used for rendering
+ * burndown charts representing the overall and personal progress of tasks in a
+ * project management application. Note that the first processing of data is done
+ * in this file, which later passed down to corresponding components respectively.
+ */
+
 import { Divider, Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import BurndownChart from "./BurndownChart";
 import PersonalChart from "./PersonalChart";
 
+/**
+ * processTaskData - Processes a list of tasks into a data format suitable for the BurndownChart component. The processed data is for group task
+ * progression overtime. Note that two dummy data is added, one is three days before creation with 0 points, the other one is three days after the
+ * last task data with the points of last data. This is to prevent glitches at early stages of workspace.
+ *
+ * @param {Array} tasks - The list of tasks to process.
+ * @param {string} currentDateStr - The current date as a string.
+ * @param {string} creationDateStr - The creation date of the workspace as a string.
+ * @returns {Array} An array of objects representing the processed task data.
+ */
 // process task data list to convert it into a data set that burndownchart.js accepts. key be timestamp, value be accumulated task points achieved.
 function processTaskData(tasks, currentDateStr, creationDateStr) {
   const creationDate = new Date(creationDateStr);
@@ -51,6 +68,16 @@ function processTaskData(tasks, currentDateStr, creationDateStr) {
   return result;
 }
 
+/**
+ * processPersonalTaskData - Processes a list of personal tasks into a data format suitable for the PersonalChart component. PersonalTaskData
+ * will later be passed down to the personal task component. Note that two dummy data are added as well.
+ *
+ * @param {Array} tasks - The list of tasks to process.
+ * @param {string} currentDateStr - The current date as a string.
+ * @param {string} creationDateStr - The creation date of the workspace as a string.
+ * @param {string} currentUserEmail - The email of the current user.
+ * @returns {Array} An array of objects representing the processed personal task data.
+ */
 // this function processes personal task data. similar to processtaskdata, this function will only look at task corresponds to curent user
 function processPersonalTaskData(
   tasks,
@@ -155,6 +182,27 @@ function processPersonalTaskData_2(
   return result;
 }
 
+/**
+ * VisualCharts - A functional component for rendering burndown charts of task progress based on group / personal task contribution.
+ *
+ * This component displays two charts: one for overall task progress and another for personal task progress.
+ * It uses the BurndownChart(./BurndownChart.js) and PersonalChart(./PersonalChart.js) components to render these charts.
+ * The component processes task data and personal task data to format them appropriately for the charts.
+ *
+ * Props:
+ * @param {Object} props - The props passed to the VisualCharts component.
+ * @param {Array} props.taskData - The task data to be visualized.
+ * @param {string} props.workspaceCreationTime - The creation time of the workspace.
+ *
+ * State:
+ * @state @type {Array} processedData - The state for storing processed task data for the BurndownChart.
+ * @state @type {Array} processedPersonalData - The state for storing processed personal task data for the PersonalChart.
+ *
+ * The component renders a grid layout containing the two charts. It conditionally renders the charts
+ * only if the processed data is available.
+ *
+ * @returns {React.ReactElement} A React element representing the visual charts for task progress.
+ */
 export default function VisualCharts(props) {
   const { auth } = useAuth();
   const currentUserEmail = auth.user.userEmail;

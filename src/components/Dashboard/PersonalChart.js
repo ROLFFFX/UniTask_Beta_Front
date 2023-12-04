@@ -1,4 +1,11 @@
+/**
+ * @fileoverview This file includes the PersonalChart component, which is used for
+ * rendering a personalized chart of task progression. It is rendered at the left
+ * bottom in dashboard - data visual view.
+ */
+
 import AdsClickIcon from "@mui/icons-material/AdsClick";
+import EmojiFoodBeverageIcon from "@mui/icons-material/EmojiFoodBeverage";
 import { Box, Grid, Tooltip, Typography } from "@mui/material";
 import Link from "@mui/material/Link";
 import React, { useEffect, useState } from "react";
@@ -8,7 +15,6 @@ import {
   VictoryLine,
   VictoryScatter,
 } from "victory";
-import EmojiFoodBeverageIcon from "@mui/icons-material/EmojiFoodBeverage";
 
 const cartesianInterpolations = [
   "basis",
@@ -26,7 +32,15 @@ const cartesianInterpolations = [
 
 const polarInterpolations = ["basis", "cardinal", "catmullRom", "linear"];
 
-// renders interpolation options
+/**
+ * InterpolationSelect - Renders a selection of interpolation options.
+ *
+ * @param {Object} props - The props passed to the InterpolationSelect component.
+ * @param {string} props.currentValue - The current selected interpolation value.
+ * @param {Array<string>} props.values - Array of available interpolation options.
+ * @param {Function} props.onChange - Callback function to handle interpolation change.
+ * @returns {React.ReactElement} The component for selecting an interpolation option.
+ */
 const InterpolationSelect = ({ currentValue, values, onChange }) => {
   return (
     <div
@@ -58,6 +72,34 @@ const InterpolationSelect = ({ currentValue, values, onChange }) => {
   );
 };
 
+/**
+ * PersonalChart - A functional component for rendering a personal task progression chart.
+ *
+ * This component visualizes a user's task progression over time using a line chart. It allows
+ * users to interactively select different interpolation methods for the chart. The component
+ * also calculates and sets up the chart's size based on the window size and updates it on window resize.
+ * Ideally, user will choose their interpolation according to preference. However, we all know nobody
+ * is really going to use it. I personally only use linear and natural. It also provides 'polar' options,
+ * which I don't even understand this mathmatical terms. The entire chart is provided by Victory.js
+ *
+ * Props:
+ * @param {Array<Object>} processedPersonalData - The processed data used for the chart, containing
+ *                                                 date (key) and value (b) pairs.
+ *
+ * State:
+ * @state @type {number} personalTotal - The total value calculated from the data.
+ * @state @type {Object} chartSize - The size of the chart, with width and height properties.
+ * @state @type {string} interpolation - The current interpolation method for the chart.
+ * @state @type {boolean} polar - Toggle for polar chart view.
+ * @state @type {boolean} shouldRenderChart - Determines if the chart should be rendered based on the data.
+ *
+ * The component includes a header with the title and a chart rendered using the Victory library.
+ * It conditionally renders the chart or a message if there is no data to display.
+ *
+ * @returns {React.ReactElement} A React element representing the personal task progression chart.
+ */
+
+// Sample processedData:
 // processedData = [
 //   {
 //     key: "Fri Dec 01 2023 00:08:55 GMT-0500 (Eastern Standard Time)",
@@ -106,7 +148,6 @@ const PersonalChart = ({ processedPersonalData }) => {
     return () => window.removeEventListener("resize", calculateSize);
   }, []);
 
-  // Format data for the chart: converting 'key' to a readable date format for the X-axis
   const mapDataToChartFormat = (data) => {
     return data.map((item, index) => {
       const formattedDate = new Date(item.key).toLocaleDateString("en-US", {
@@ -118,7 +159,6 @@ const PersonalChart = ({ processedPersonalData }) => {
   };
 
   const chartData = mapDataToChartFormat(processedPersonalData);
-
   // Get unique X-axis tick values
   const getUniqueTickValues = () => {
     return [...new Set(chartData.map((point) => point.x))];
@@ -179,8 +219,8 @@ const PersonalChart = ({ processedPersonalData }) => {
               left: "28%",
               top: "15%",
               transform: "translate(-50%, -50%)",
-              width: "300px", // Diameter of the circle
-              height: "40px", // Diameter of the circle
+              width: "300px",
+              height: "40px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -188,6 +228,7 @@ const PersonalChart = ({ processedPersonalData }) => {
             }}
           ></div>
         </Tooltip>
+        {/* Section for interpolation select */}
         <Grid item xs={12}>
           <div
             style={{
@@ -233,10 +274,8 @@ const PersonalChart = ({ processedPersonalData }) => {
                   ticks: { stroke: "grey", size: 5 },
                   tickLabels: { fontSize: 9 },
                 }}
-                // optional: customize tickLabelComponent for more formatting
               />
             )}
-
             <VictoryAxis
               dependentAxis
               style={{

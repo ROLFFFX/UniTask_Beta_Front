@@ -1,3 +1,10 @@
+/**
+ * @fileoverview This file includes the PasswordInput component, which is a
+ * custom password input field used in user registration and login processes.
+ * It provides additional password check and interactively prompt the user
+ * to design their passwords.
+ */
+
 import Key from "@mui/icons-material/Key";
 import LinearProgress from "@mui/material/LinearProgress";
 import Stack from "@mui/material/Stack";
@@ -8,10 +15,31 @@ import * as React from "react";
 import theme from "./LoginStyling/theme";
 import { ThemeProvider } from "@mui/material/styles";
 
+/**
+ * PasswordInput - A functional component for rendering a password input field with validation.
+ *
+ * This component provides an input textfield for password entry along with real-time validation feedback.
+ * It includes a progress bar to indicate the strength of the password based on its length and displays
+ * helper text to guide the user to meet the password criteria. The criteria include having a minimum length of 8,
+ * containing at least one numeral, and at least one uppercase letter.
+ *
+ * Props:
+ * @prop {Function} onInputChange - Function to handle the change in the password input field.
+ * @prop {Function} onCriteriaMetChange - Function to notify when the password meets the specified criteria.
+ *
+ * State:
+ * @state @type {string} value - The current value of the password input field.
+ * @state @type {boolean} focused - Boolean to indicate if the password input field is focused.
+ * @state @type {boolean} hasNumber - Boolean indicating if the password contains at least one number.
+ * @state @type {boolean} hasUppercase - Boolean indicating if the password contains at least one uppercase letter.
+ * @state @type {boolean} isLengthValid - Boolean indicating if the password length is within the specified range.
+ * @state @type {boolean} criteriaMet - Boolean indicating if the password meets all the specified criteria.
+ *
+ * @returns {React.ReactElement} A React element representing a custom password input field with validation feedback.
+ */
 export function PasswordInput({ onInputChange, onCriteriaMetChange }) {
   const minLength = 8;
   const maxLength = 16;
-
   const [value, setValue] = React.useState("");
   const [focused, setFocused] = React.useState(false);
   const handleFocus = () => {
